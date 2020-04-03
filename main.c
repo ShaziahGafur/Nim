@@ -31,6 +31,20 @@ void remove(int size , int rowNo, int noPieces ,int row[6][6])
     }
 }
 
+void checkWin(int row[6][6])
+{
+    for (int i =0; i< 6;i++)
+    {
+        for(int j = 0;j < 6; j++)
+        {
+            if (row[i][j] == 1) //if a single piece is still left
+                return false; //no win occurred
+                        
+        }
+    }
+    return true; //empty board (no pieces left)
+}
+
 void print(int row[6][6])
 {
     for (int i =0; i< 6;i++)
@@ -50,7 +64,8 @@ void print(int row[6][6])
 int main() {
     
     bool turn = true;
-    char win = 'y';
+    bool gameOver = false;
+    char continueGame = 'y';
     
     int row[6][6];
     
@@ -79,7 +94,7 @@ int main() {
     int rowNo;
     int noPieces;
     
-    while(win == 'y')
+    while(continueGame == 'y' && !gameOver)
     {
     
         if(turn == true)
@@ -114,11 +129,23 @@ int main() {
             
         }
     
-        printf("enter win ");
+        printf("Continue? Press 'y' and hit ENTER");
         scanf(" %c", &win);
+        
+        if (checkWin){
+            if (turn) //Turn fipped to Player 1, thus Player 2 made the winning move
+                printf("Player 2 Wins!");
+            else //Winning move by Player 1
+                 printf("Player 1 Wins!");
+            gameOver = true;
+        }
                 
                 
     }
+    //game finished or user exited
+    
+    if (continueGame != 'y')
+        printf("User Exited Game");
     
     return 0;
         
