@@ -1,75 +1,36 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
+//#include <cstdlib>
+#include <stdlib.h>
+//#include <iostream>
+#include <stdio.h>
+#include <stdbool.h>
+
+//using namespace std;
 
 /* 
- * File:   main.cpp
- * Author: kalrameh
- *
- * Created on April 1, 2020, 9:18 PM
+ * Function Declarations:
  */
 
-#include <cstdlib>
-#include <iostream>
-#include <stdio.h>
-
-
-using namespace std;
-
-/*
- * 
- */
-
-void remove(int size , int rowNo, int noPieces ,int row[6][6])
-{
-    for (int k= size; k >= size - noPieces; k--)
-    {
-        if(row[rowNo-1][k] != 0)
-            row[rowNo-1][k] = 0;
-    }
-}
-
-void checkWin(int row[6][6])
-{
-    for (int i =0; i< 6;i++)
-    {
-        for(int j = 0;j < 6; j++)
-        {
-            if (row[i][j] == 1) //if a single piece is still left
-                return false; //no win occurred
-                        
-        }
-    }
-    return true; //empty board (no pieces left)
-}
-
-void print(int row[6][6])
-{
-    for (int i =0; i< 6;i++)
-    {
-        for(int j = 0;j < 6; j++)
-        {
-            printf("%d ",row[i][j]);
-                    
-                
-        }
-        
-        printf("\n");
-    }
-}
-
+int MAX_BOARD_SIZE = 6;
+int piecesRemaining[6]; //keep track of the number of game pieces that still exist in each row
+bool removePieces(int rowNo, int noPieces, int row[6][6]);
+bool checkWin();
+void print(int row[MAX_BOARD_SIZE][MAX_BOARD_SIZE]);
 
 int main() {
-    
     bool turn = true;
     bool gameOver = false;
     char continueGame = 'y';
     
-    int row[6][6];
+    piecesRemaining[1] = 1; //initliaze the # of game pieces in each row
+    piecesRemaining[2] = 2;
+    piecesRemaining[3] = 3;
+    piecesRemaining[4] = 4;
+    piecesRemaining[5] = 5;
+    piecesRemaining[0] = 6;
     
-    for (int i =0; i< 6;i++)
+    int row[MAX_BOARD_SIZE][MAX_BOARD_SIZE];
+    
+    for (int i =0; i < MAX_BOARD_SIZE;i++)
     {
         for(int j = 0;j <= i; j++)
         {
@@ -77,19 +38,17 @@ int main() {
         }
     }
     
-    for (int i =0; i< 6;i++)
+    for (int i =0; i < MAX_BOARD_SIZE;i++)
     {
-        for(int j = 0;j < 6; j++)
+        for(int j = 0;j < MAX_BOARD_SIZE; j++)
         {
             if(row[i][j] != 1)
                 row[i][j] = 0;
             
-                
         }
     }
    
     print(row);
-    
     
     int rowNo;
     int noPieces;
@@ -97,49 +56,28 @@ int main() {
     while(continueGame == 'y' && !gameOver)
     {
     
-        if(turn == true)
-        {
-            printf( "Player 1: Which row would you like to remove pieces from? \n ");
+        // if(turn == true)
+        // {
+        bool invalidMove = true;
+        while(invalidMove){
+            printf( "Player %d: Which row would you like to remove pieces from? \n ", ((turn) ? 1 : 2));
             scanf( "%d", &rowNo);
                 
-            printf( " Player 1: How many pieces would you like to remove from ",rowNo, "? \n ");
+            printf( " Player %d: How many pieces would you like to remove from %d? \n ",((turn) ? 1 : 2), rowNo);
             scanf( "%d", &noPieces);
-        
-            remove(rowNo, rowNo, noPieces ,row);
             
-             print(row);
-        
-            turn = false;
-            
+            invalidMove = removePieces(rowNo, noPieces ,row);
+
         }
+         print(row);
         
-        else
-        {
-            printf( "Player 2: Which row would you like to remove pieces from? \n ");
-            scanf( "%d", &rowNo);
-                
-            printf( " Player 2: How many pieces would you like to remove from ",rowNo, "? \n ");
-            scanf( "%d", &noPieces);
-        
-            remove(rowNo, rowNo, noPieces ,row);
-            
-            print(row);
-        
-            turn = true;
-            
-        }
-    
-        printf("Continue? Press 'y' and hit ENTER");
-        scanf(" %c", &win);
-        
-        if (checkWin){
-            if (turn) //Turn fipped to Player 1, thus Player 2 made the winning move
-                printf("Player 2 Wins!");
-            else //Winning move by Player 1
-                 printf("Player 1 Wins!");
+        if (checkWin(row)){
+            printf("Player %d Wins!", ((turn) ? 1 : 2));
             gameOver = true;
         }
-                
+        turn = turn^1; //toggle turn        
+        printf("Continue? Press 'y' and hit ENTER");
+        scanf(" %c", &continueGame);        
                 
     }
     //game finished or user exited
@@ -152,6 +90,51 @@ int main() {
 } 
         
         
+bool removePieces(int rowNo, int noPieces, int row[MAX_BOARD_SIZE][MAX_BOARD_SIZE])
+{
+    rowNo--;
+    if (rowNo<0 || rowNo > MAX_BOARD_SIZE - 1){
+        printf("Invalid row #");
+        return true;
+    }
+    int piecesLeftInRow = piecesRemaining[rowNo-1];
+    if (rowNo > piecesLeftInRow || noPieces < 1){
+        printf("Invalid # of pieces");
+        return true;
+    }
+    for (int k= piecesLeftInRow; k >= piecesLeftInRow - noPieces; k--) //update board display
+    {
+        if(row[rowNo][k] != 0)
+            row[rowNo][k] = 0;
+    }
+    piecesRemaining[rowNo-1]-=noPieces; //update the record of # of pieces left in board
+    return false;
+}
+
+bool checkWin()
+{
+    for (int i =0; i< MAX_BOARD_SIZE;i++)
+    {
+        if (piecesRemaining[i] != 0) // if a single piece is left
+            return false;
+    }
+    return true; //empty board (no pieces left)
+}
+
+void print(int row[6][6])
+{
+    for (int i =0; i< 6;i++)
+    {   
+        printf("Row %d\t", (i+1));
+        for(int j = 0;j < 6; j++)
+        {
+            printf("%d ",row[i][j]);
+                    
+        }
+        
+        printf("\n");
+    }
+}        
         
         
         
