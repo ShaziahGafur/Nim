@@ -12,6 +12,7 @@ void resetMatch(bool * turn, bool * gameOver, char * continueGame, int * piecesR
 bool removePieces(int rowNo, int noPieces, int row[BOARD_SIZE][BOARD_SIZE]);
 bool checkWin();
 void print(int row[BOARD_SIZE][BOARD_SIZE]);
+int receivedInput();
 void updateRounds(bool turn, int * playerOneScore, int * playerTwoScore);
 
 int main() {
@@ -32,10 +33,12 @@ int main() {
         bool invalidMove = true;
         while(invalidMove){
             printf( "Player %d: Which row would you like to remove pieces from? \n ", ((turn) ? 1 : 2));
-            scanf( "%d", &rowNo);
+            rowNo = receivedInput();
+            //scanf( "%d", &rowNo);
                 
             printf( " Player %d: How many pieces would you like to remove from %d? \n ",((turn) ? 1 : 2), rowNo);
-            scanf( "%d", &noPieces);
+            noPieces = receivedInput();
+            //scanf( "%d", &noPieces);
             
             invalidMove = removePieces(rowNo, noPieces ,row);
 
@@ -149,6 +152,33 @@ void print(int row[BOARD_SIZE][BOARD_SIZE])
         printf("\n");
     }
 }        
+      
+int receivedInput(){
+    /* Declare volatile pointers to I/O registers (volatile means that IO load
+  and store instructions will be used to access these pointer locations,
+  instead of regular memory loads and stores) */
+  volatile int * PS2_ptr = (int * ) 0xFF200100;
+  int PS2_data, RVALID;
+  char byte1 = 0, byte2 = 0, byte3 = 0;
+  // PS/2 mouse needs to be reset (must be already plugged in)
+  *(PS2_ptr) = 0xFF; // reset
+  while (1) {
+    PS2_data = * (PS2_ptr); // read the Data register in the PS/2 port
+    RVALID = PS2_data & 0x8000; // extract the RVALID field
+    if (RVALID) {
+      /* shift the next data byte into the display */
+      byte1 = byte2;
+      byte2 = byte3;
+      byte3 = PS2_data & 0xFF;
+     // HEX_PS2(byte1, byte2, byte3);
+      if ((byte2 == (char) 0xAA) && (byte3 == (char) 0x00))
+        // mouse inserted; initialize sending of data
+        *
+        (PS2_ptr) = 0xF4;
+    }
+  }
+    return byte3;
+}      
       
 void updateRounds(bool turn, int * playerOneScore, int * playerTwoScore){
     bool resetRounds = false;
