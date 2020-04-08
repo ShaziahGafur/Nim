@@ -8,15 +8,73 @@
 #define BOARD_SIZE 6
 
 int piecesRemaining[BOARD_SIZE]; //keep track of the number of game pieces that still exist in each row
+void resetMatch(bool * turn, bool * gameOver, char * continueGame, int * piecesRemaining, int row[BOARD_SIZE][BOARD_SIZE]);
 bool removePieces(int rowNo, int noPieces, int row[BOARD_SIZE][BOARD_SIZE]);
 bool checkWin();
 void print(int row[BOARD_SIZE][BOARD_SIZE]);
+void updateRounds(bool turn, int * playerOneScore, int * playerTwoScore);
 
 int main() {
-    bool turn = true;
-    bool gameOver = false;
-    char continueGame = 'y';
+    //Initial setup
+    int rowNo;
+    int noPieces;
+    int row[BOARD_SIZE][BOARD_SIZE];
+    bool turn;
+    bool gameOver;
+    char continueGame;
+    int playerOneScore = 0, playerTwoScore = 0; //initial scores
 
+    resetMatch (&turn, &gameOver, &continueGame, piecesRemaining, row);
+   
+    while(continueGame == 'y' && !gameOver)
+    {
+        print(row);
+        bool invalidMove = true;
+        while(invalidMove){
+            printf( "Player %d: Which row would you like to remove pieces from? \n ", ((turn) ? 1 : 2));
+            scanf( "%d", &rowNo);
+                
+            printf( " Player %d: How many pieces would you like to remove from %d? \n ",((turn) ? 1 : 2), rowNo);
+            scanf( "%d", &noPieces);
+            
+            invalidMove = removePieces(rowNo, noPieces ,row);
+
+        }
+
+        if (checkWin(row)){
+            print(row);
+
+            printf("Player %d Wins the match!\n", ((turn) ? 1 : 2));
+            gameOver = true;
+            updateRounds(turn, &playerOneScore, &playerTwoScore);
+            
+            printf("Play Again? Press 'y' and hit ENTER");
+            scanf(" %c", &continueGame);   
+            if (continueGame == 'y')
+                resetMatch (&turn, &gameOver, &continueGame, piecesRemaining, row);
+        }
+        else{
+            turn = turn^1; //toggle turn        
+            printf("Continue? Press 'y' and hit ENTER");
+            scanf(" %c", &continueGame);  
+        }
+                
+    }
+    //game finished or user exited
+    
+    if (continueGame != 'y')
+        printf("User Exited Game");
+    
+    return 0;
+        
+} 
+
+void resetMatch(bool * turn, bool * gameOver, char * continueGame, int * piecesRemaining, int row[BOARD_SIZE][BOARD_SIZE]){
+    
+    *turn = true;
+    *gameOver = false;
+    *continueGame = 'y';
+    
     piecesRemaining[0] = 1; //initliaze the # of game pieces in row 1
     piecesRemaining[1] = 2; //row 2
     piecesRemaining[2] = 3; //row 3
@@ -24,8 +82,7 @@ int main() {
     piecesRemaining[4] = 5;
     piecesRemaining[5] = 6;
 
-    int row[BOARD_SIZE][BOARD_SIZE];
-    
+    // printf(*(piecesRemaining+4));printf("\n\n");    
     //for each board's row, set the correct number of pieces 
     for (int i = 0; i < BOARD_SIZE;i++)
     {
@@ -42,45 +99,8 @@ int main() {
             row[i][j] = 0;
         }
     }
-   
-    print(row);
     
-    int rowNo;
-    int noPieces;
-    
-    while(continueGame == 'y' && !gameOver)
-    {
-    
-        bool invalidMove = true;
-        while(invalidMove){
-            printf( "Player %d: Which row would you like to remove pieces from? \n ", ((turn) ? 1 : 2));
-            scanf( "%d", &rowNo);
-                
-            printf( " Player %d: How many pieces would you like to remove from %d? \n ",((turn) ? 1 : 2), rowNo);
-            scanf( "%d", &noPieces);
-            
-            invalidMove = removePieces(rowNo, noPieces ,row);
-
-        }
-         print(row);
-        
-        if (checkWin(row)){
-            printf("Player %d Wins!", ((turn) ? 1 : 2));
-            gameOver = true;
-        }
-        turn = turn^1; //toggle turn        
-        printf("Continue? Press 'y' and hit ENTER");
-        scanf(" %c", &continueGame);        
-                
-    }
-    //game finished or user exited
-    
-    if (continueGame != 'y')
-        printf("User Exited Game");
-    
-    return 0;
-        
-} 
+}
         
         
 bool removePieces(int rowNo, int noPieces, int row[BOARD_SIZE][BOARD_SIZE])
@@ -127,7 +147,28 @@ void print(int row[BOARD_SIZE][BOARD_SIZE])
         printf("\n");
     }
 }        
-        
+      
+void updateRounds(bool turn, int * playerOneScore, int * playerTwoScore){
+    bool resetRounds = false;
+    if (turn) {
+        (*playerOneScore)++;
+        if ((*playerOneScore)>=5){
+            printf("Player One Wins the Round");
+            resetRounds = true;
+        }
+    }
+    else  {
+        (*playerTwoScore)++;
+        if ((*playerTwoScore)>=5){
+            printf("Player Two Wins the Round");
+            resetRounds = true;
+        }
+    }
+    if (resetRounds){
+        (*playerOneScore) = 0;
+        (*playerTwoScore) = 0;
+    }
+}
         
         
         
