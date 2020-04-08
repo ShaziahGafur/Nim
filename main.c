@@ -75,14 +75,16 @@ void resetMatch(bool * turn, bool * gameOver, char * continueGame, int * piecesR
     *gameOver = false;
     *continueGame = 'y';
     
-    piecesRemaining[0] = 1; //initliaze the # of game pieces in row 1
-    piecesRemaining[1] = 2; //row 2
-    piecesRemaining[2] = 3; //row 3
-    piecesRemaining[3] = 4;
-    piecesRemaining[4] = 5;
-    piecesRemaining[5] = 6;
+    //Randomize the distibution of the 21 pieces across the piles
+    int totalCount = 21;
+    //initliaze the # of game pieces in each row
+    int randomNumber;
+    for (int i = 0; i < BOARD_SIZE && totalCount > 0; i++){
+        randomNumber = rand()%7; //random number from 0 to 6
+        piecesRemaining[i] = randomNumber; 
+        totalCount-=randomNumber;
+    }
 
-    // printf(*(piecesRemaining+4));printf("\n\n");    
     //for each board's row, set the correct number of pieces 
     for (int i = 0; i < BOARD_SIZE;i++)
     {
