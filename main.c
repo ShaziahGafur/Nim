@@ -1,50 +1,45 @@
 //#include <cstdlib>
 #include <stdlib.h>
-//#include <iostream>
 #include <stdio.h>
 #include <stdbool.h>
 
-//using namespace std;
+/* Function Declarations: */
+ 
+#define BOARD_SIZE 6
 
-/* 
- * Function Declarations:
- */
-
-int MAX_BOARD_SIZE = 6;
-int piecesRemaining[6]; //keep track of the number of game pieces that still exist in each row
-bool removePieces(int rowNo, int noPieces, int row[6][6]);
+int piecesRemaining[BOARD_SIZE]; //keep track of the number of game pieces that still exist in each row
+bool removePieces(int rowNo, int noPieces, int row[BOARD_SIZE][BOARD_SIZE]);
 bool checkWin();
-void print(int row[MAX_BOARD_SIZE][MAX_BOARD_SIZE]);
+void print(int row[BOARD_SIZE][BOARD_SIZE]);
 
 int main() {
     bool turn = true;
     bool gameOver = false;
     char continueGame = 'y';
+
+    piecesRemaining[0] = 1; //initliaze the # of game pieces in row 1
+    piecesRemaining[1] = 2; //row 2
+    piecesRemaining[2] = 3; //row 3
+    piecesRemaining[3] = 4;
+    piecesRemaining[4] = 5;
+    piecesRemaining[5] = 6;
+
+    int row[BOARD_SIZE][BOARD_SIZE];
     
-    piecesRemaining[1] = 1; //initliaze the # of game pieces in each row
-    piecesRemaining[2] = 2;
-    piecesRemaining[3] = 3;
-    piecesRemaining[4] = 4;
-    piecesRemaining[5] = 5;
-    piecesRemaining[0] = 6;
-    
-    int row[MAX_BOARD_SIZE][MAX_BOARD_SIZE];
-    
-    for (int i =0; i < MAX_BOARD_SIZE;i++)
+    //for each board's row, set the correct number of pieces 
+    for (int i = 0; i < BOARD_SIZE;i++)
     {
-        for(int j = 0;j <= i; j++)
+        for(int j = 0; j < piecesRemaining[i]; j++)
         {
             row[i][j] = 1;
         }
     }
     
-    for (int i =0; i < MAX_BOARD_SIZE;i++)
+    for (int i = 0; i < BOARD_SIZE;i++)
     {
-        for(int j = 0;j < MAX_BOARD_SIZE; j++)
+        for(int j = piecesRemaining[i]; j < BOARD_SIZE; j++)
         {
-            if(row[i][j] != 1)
-                row[i][j] = 0;
-            
+            row[i][j] = 0;
         }
     }
    
@@ -56,8 +51,6 @@ int main() {
     while(continueGame == 'y' && !gameOver)
     {
     
-        // if(turn == true)
-        // {
         bool invalidMove = true;
         while(invalidMove){
             printf( "Player %d: Which row would you like to remove pieces from? \n ", ((turn) ? 1 : 2));
@@ -90,30 +83,29 @@ int main() {
 } 
         
         
-bool removePieces(int rowNo, int noPieces, int row[MAX_BOARD_SIZE][MAX_BOARD_SIZE])
+bool removePieces(int rowNo, int noPieces, int row[BOARD_SIZE][BOARD_SIZE])
 {
     rowNo--;
-    if (rowNo<0 || rowNo > MAX_BOARD_SIZE - 1){
+    if (rowNo<0 || rowNo >= BOARD_SIZE){
         printf("Invalid row #");
         return true;
     }
-    int piecesLeftInRow = piecesRemaining[rowNo-1];
-    if (rowNo > piecesLeftInRow || noPieces < 1){
+    int piecesLeftInRow = piecesRemaining[rowNo];
+    if (noPieces > piecesLeftInRow || noPieces < 1){
         printf("Invalid # of pieces");
         return true;
     }
-    for (int k= piecesLeftInRow; k >= piecesLeftInRow - noPieces; k--) //update board display
+    for (int k = piecesLeftInRow; k >= piecesLeftInRow - noPieces; k--) //update board display
     {
-        if(row[rowNo][k] != 0)
-            row[rowNo][k] = 0;
+        row[rowNo][k] = 0;
     }
-    piecesRemaining[rowNo-1]-=noPieces; //update the record of # of pieces left in board
+    piecesRemaining[rowNo]-=noPieces; //update the record of # of pieces left in board
     return false;
 }
 
 bool checkWin()
 {
-    for (int i =0; i< MAX_BOARD_SIZE;i++)
+    for (int i =0; i< BOARD_SIZE;i++)
     {
         if (piecesRemaining[i] != 0) // if a single piece is left
             return false;
@@ -121,12 +113,12 @@ bool checkWin()
     return true; //empty board (no pieces left)
 }
 
-void print(int row[6][6])
+void print(int row[BOARD_SIZE][BOARD_SIZE])
 {
-    for (int i =0; i< 6;i++)
+    for (int i =0; i< BOARD_SIZE;i++)
     {   
         printf("Row %d\t", (i+1));
-        for(int j = 0;j < 6; j++)
+        for(int j = 0;j < BOARD_SIZE; j++)
         {
             printf("%d ",row[i][j]);
                     
