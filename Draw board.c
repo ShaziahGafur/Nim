@@ -9,7 +9,21 @@ int main(void)
     pixel_buffer_start = *pixel_ctrl_ptr;
 	clear_screen();
 	draw();
+	video_text(20,5,"NIM - STAY TILL THE LAST AND COME FIRST");
 }
+
+void video_text(int x, int y, char * text_ptr) {
+	int offset;
+	volatile char * character_buffer = (char*)0xC9000000;
+	offset = (y << 7) + x; 
+	while (*(text_ptr)) {
+		*(character_buffer + offset) = *(text_ptr); // write to the character buffer
+		++text_ptr;
+		++offset;
+	}
+}
+
+
 	
 draw()
 {
@@ -87,14 +101,4 @@ void plot_pixel(int x, int y, short int line_color)
     *(short int *)(pixel_buffer_start + (y << 10) + (x << 1)) = line_color;
 }
 
-
-	
-	
-			
-			
-			
-			
-			
-			
-	
 	
